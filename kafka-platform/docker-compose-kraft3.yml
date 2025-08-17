@@ -1,0 +1,144 @@
+# Эта конфигурация запускает кластер Kafka в KRaft режиме (без Zookeeper) с разделением ролей:
+# 3 контроллера (Controller Nodes): controller-1, controller-2, controller-3. Их роль строго ограничена управлением метаданными кластера.
+# 3 брокера (Broker Nodes): broker-1, broker-2, broker-3. Они отвечают за хранение и обработку данных (топиков и партиций).
+# Фактор репликации по умолчанию не задан явно в этой конфигурации на уровне брокеров. Он обычно указывается при создании топика.
+# Kafdrop
+# Запускается (!)
+
+version: "3"
+services:
+
+  # https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html
+
+  controller-1:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: controller-1
+    container_name: controller-1
+    environment:
+      KAFKA_PROCESS_ROLES: "controller"
+      KAFKA_NODE_ID: 1
+      # На каком сокете слушает:
+      KAFKA_LISTENERS: "CONTROLLER://controller-1:29092"
+      # Участники кворума при определении лидера:
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      # По какому префиксу искать первого слушателя при KRaft:
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  controller-2:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: controller-2
+    container_name: controller-2
+    depends_on:
+      - controller-1
+    ports:
+      - "9093:9092"
+      - "9102:9101"
+    environment:
+      KAFKA_PROCESS_ROLES: "controller"
+      KAFKA_NODE_ID: 2
+      KAFKA_LISTENERS: "CONTROLLER://controller-2:29092"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  controller-3:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: controller-3
+    container_name: controller-3
+    depends_on:
+      - controller-1
+      - controller-2
+    ports:
+      - "9094:9092"
+      - "9103:9101"
+    environment:
+      KAFKA_PROCESS_ROLES: "controller"
+      KAFKA_NODE_ID: 3
+      KAFKA_LISTENERS: "CONTROLLER://controller-3:29092"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  broker-1:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: broker-1
+    container_name: broker-1
+    ports:
+      - "9095:9092"
+      - "29095:29092"
+      - "9104:9101"
+    environment:
+      KAFKA_NODE_ID: 4
+      KAFKA_PROCESS_ROLES: "broker"
+      # Префикс слушателя у контроллера:
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      # Префикс слушателя для внутреннего общения брокеров:
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_LISTENERS: "PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://0.0.0.0:29092"
+      # Пары префикс слушателя - протокол безопасности:
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://127.0.0.1:29092" # Required for brokers
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  broker-2:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: broker-2
+    depends_on:
+      - broker-1
+    container_name: broker-2
+    ports:
+      - "9096:9092"
+      - "29096:29092"
+      - "9105:9101"
+    environment:
+      KAFKA_NODE_ID: 5
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://localhost:29092" # Required for brokers
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_PROCESS_ROLES: "broker"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      KAFKA_LISTENERS: "PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://0.0.0.0:29092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  broker-3:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: broker-3
+    depends_on:
+      - broker-2
+    container_name: broker-3
+    ports:
+      - "9097:9092"
+      - "29097:29092"
+      - "9106:9101"
+    environment:
+      KAFKA_NODE_ID: 6
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-3:9092,PLAINTEXT_HOST://localhost:29092" # Required for brokers
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_PROCESS_ROLES: "broker"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      KAFKA_LISTENERS: "PLAINTEXT://broker-3:9092,PLAINTEXT_HOST://0.0.0.0:29092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:4.0.1
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "broker-1:9092,broker-2:9092,broker-3:9092"
+      JVM_OPTS: "-Xms32M -Xmx64M"
+      SERVER_SERVLET_CONTEXT_PATH: "/"
+    depends_on:
+      - broker-1
+      - broker-2
+      - broker-3

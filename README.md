@@ -22,7 +22,7 @@ kafka-examples/
 ├── 16-retry-policies/               # Политики повторных попыток и экспоненциальная отсрочка
 ├── 17-event-sourcing/               # Паттерн Event Sourcing с Kafka
 ├── 18-cqrs-saga/                    # CQRS и Saga паттерны с оркестрацией
-└── infrastructure/                  # Инфраструктурные компоненты и конфигурации
+└── kafka-platform/                  # Инфраструктурные компоненты и конфигурации
 ```
 
 Развернутый вариант
@@ -387,7 +387,7 @@ kafka-examples/
 │       └── dto/
 │           ├── PersonCommandRequest.java
 │           └── PersonQueryRequest.java
-└── infrastructure/
+└── kafka-platform/
     ├── docker-compose.full.yml
     ├── kafka-cluster/
     │   ├── docker-compose.cluster.yml

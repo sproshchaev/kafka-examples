@@ -1,2 +1,3 @@
 rootProject.name = 'kafka-examples'
 include 'shared-model'
+include 'kafka-platform'
