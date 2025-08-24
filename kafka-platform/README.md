@@ -46,10 +46,11 @@
 - ❌ REST API: отсутствует
 - ❌ volume не именованы!
 
-### Файл 4 docker-compose-kraft1-4.yml (KRaft - 1 controller + 1 broker)
-- ✅ Бутстрап: `localhost:29092`
+### Файл №4 docker-compose-kraft1-4.yml (KRaft - 1 controller + 1 broker)
+- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
 - ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"} 
 - ✅ REST API: `localhost:8082`
+- ✅ kafka-ui протестирован на http://localhost:8088/
 - ❌ volume не именованы!
 
 ### Файл 5 (KRaft - 3 controller + 3 broker)
