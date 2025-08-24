@@ -1,3 +1,4 @@
+# 2. docker-compose2.yml -> docker-compose.zk-dev-full.yml
 # Мой из kafka-for-developers
 #  1) zookeeper Порт ZOOKEEPER_CLIENT_PORT: 2181
 #  2) Брокер #1 Порт PLAINTEXT_HOST://localhost:9093

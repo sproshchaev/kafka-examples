@@ -1,3 +1,4 @@
+# 3. docker-compose-kraft1.yml -> docker-compose.kraft-1node.yml
 # Конфигурация docker-compose.yml с одним контроллером и одним брокером в режиме KRaft
 # kafka-platform/docker/kraft-single-broker.yml
 # 1) kafka

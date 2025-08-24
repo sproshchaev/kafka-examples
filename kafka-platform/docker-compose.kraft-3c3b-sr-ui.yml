@@ -1,8 +1,10 @@
+# 7. docker-compose-kraft3-3.yml -> docker-compose.kraft-3c3b-sr-ui.yml
 # Эта конфигурация запускает кластер Kafka в KRaft режиме (без Zookeeper) с разделением ролей:
 # 3 контроллера (Controller Nodes): controller-1, controller-2, controller-3. Их роль строго ограничена управлением метаданными кластера.
 # 3 брокера (Broker Nodes): broker-1, broker-2, broker-3. Они отвечают за хранение и обработку данных (топиков и партиций).
 # Фактор репликации по умолчанию не задан явно в этой конфигурации на уровне брокеров. Он обычно указывается при создании топика.
-# Kafdrop
+# + Регистр схем. (Без интерфейса. Проверить: curl http://localhost:8081/config -> "{"compatibilityLevel":"BACKWARD"}% ")
+# kafka-ui (вместо Kafdrop) по адресу http://localhost:8088/ (в нем можно смотреть регистр схем!)
 # Запускается (!)
 
 version: "3"
@@ -32,7 +34,6 @@ services:
     depends_on:
       - controller-1
     # Убраны порты 9093:9092 и 9102:9101, так как контроллеры обычно не требуют внешних портов для клиентов
-    # Если нужен доступ к JMX или внутреннему порту контроллера, можно оставить, но это не обязательно для клиентов Kafka
     environment:
       KAFKA_PROCESS_ROLES: "controller"
       KAFKA_NODE_ID: 2
@@ -132,18 +133,38 @@ services:
       KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
 
-  kafdrop:
-    image: obsidiandynamics/kafdrop:4.0.1
-    container_name: kafdrop
+  # https://docs.confluent.io/platform/current/schema-registry/installation/config.html
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.6.1
+    hostname: schema-registry
+    container_name: schema-registry
     ports:
-      - "9000:9000"
-    environment:
-      # Обновлены адреса подключения к брокерам для Kafdrop (он внутри Docker сети)
-      # Можно использовать внутренние имена хостов и порты 9092
-      KAFKA_BROKERCONNECT: "broker-1:9092,broker-2:9092,broker-3:9092"
-      JVM_OPTS: "-Xms32M -Xmx64M"
-      SERVER_SERVLET_CONTEXT_PATH: "/"
+      - "8081:8081"
     depends_on:
-      - broker-1
-      - broker-2
-      - broker-3
+      - broker-1 # Зависимость оставлена, но Schema Registry подключается по внутреннему адресу
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
+      # Подключение к брокеру по внутреннему адресу в Docker сети
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://broker-1:9092
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
+      # Фактор репликации для служебного топика Schema Registry
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 1
+
+  # https://docs.kafka-ui.provectus.io/configuration/configuration-file
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:master
+    ports:
+      - 8088:8080
+    depends_on:
+      - schema-registry
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      # Подключение к брокерам по внутренним адресам в Docker сети (остаётся без изменений)
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: PLAINTEXT://broker-1:9092,broker-2:9092,broker-3:9092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+      DYNAMIC_CONFIG_ENABLED: 'true'

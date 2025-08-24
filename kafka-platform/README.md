@@ -1,98 +1,92 @@
 # kafka-platform
 
-Все эти конфигурации docker-compose настроены и проверены: 
-[docker-compose.yml](docker-compose.yml)
-[docker-compose2.yml](docker-compose2.yml)
-[docker-compose-kraft1.yml](docker-compose-kraft1.yml)
-[docker-compose-kraft1-4.yml](docker-compose-kraft1-4.yml)
-[docker-compose-kraft3.yml](docker-compose-kraft3.yml)
-[docker-compose-kraft3-2.yml](docker-compose-kraft3-2.yml)
-[docker-compose-kraft3-3.yml](docker-compose-kraft3-3.yml)
-[docker-compose-kraft3-4.yml](docker-compose-kraft3-4.yml)
+## Содержание конфигураций:
 
-(в каждом указан в комментариях)
+| №  | Имя файла                                                                                        | bootstrap.servers                   | Kraft/Zoo | Schema Registry | REST API | Kafdrop/Kafka UI          | Volume names |
+| :- |:-------------------------------------------------------------------------------------------------|:------------------------------------|:----------|:----------------|:---------| :------------------------ |:-------------|
+| 1  | [docker-compose.zk-min.yml](docker-compose.zk-min.yml)                                           | `localhost:9093`                    | Zoo       | ❌              | ❌       | `http://localhost:9000`   | ✅           |
+| 2  | [docker-compose.zk-dev-full.yml](docker-compose.zk-dev-full.yml)                                 | `localhost:9093`                    | Zoo       | `:8081`         | `:8082`  | `http://localhost:9000`   | ❌           |
+| 3  | [docker-compose.kraft-1node.yml](docker-compose.kraft-1node.yml)                                 | `localhost:9093`                    | Kraft     | ❌              | ❌       | `http://localhost:9000`   | ❌           |
+| 4  | [docker-compose.kraft-1c1b-full.yml](docker-compose.kraft-1c1b-full.yml)                         | `localhost:9093`                    | Kraft     | `:8081`         | `:8082`  | `http://localhost:8088`   | ❌           |
+| 5  | [docker-compose.kraft-3c3b-min.yml](docker-compose.kraft-3c3b-min.yml)                           | `localhost:9091,:9092,:9093`        | Kraft     | ❌              | ❌       | `http://localhost:9000`   | ❌           |
+| 6  | [docker-compose.kraft-3c3b-sr.yml](docker-compose.kraft-3c3b-sr.yml)                             | `localhost:9091,:9092,:9093`        | Kraft     | `:8081`         | ❌       | `http://localhost:9000`   | ❌           |
+| 7  | [docker-compose.kraft-3c3b-sr-ui.yml](docker-compose.kraft-3c3b-sr-ui.yml)                       | `localhost:9091,:9092,:9093`        | Kraft     | `:8081`         | ❌       | `http://localhost:8088`   | ❌           |
+| 8  | [docker-compose.kraft-3c3b-complete.yml](docker-compose.kraft-3c3b-complete.yml)                 | `localhost:9091,:9092,:9093`        | Kraft     | `:8081`         | `:8082`  | `http://localhost:8088`   | ❌           |
+| 9  | [docker-compose.kraft-3c3b-broken-bootstrap.yml](docker-compose.kraft-3c3b-broken-bootstrap.yml) | `localhost:29092` (**отличается!**) | Kraft     | `:8081`         | `:8082`  | `http://localhost:8088`   | ❌           |
 
-Для обеспечения единообразного подключения внешних приложений к кластеру Kafka нужно стандартизировать следующие параметры:
+**Легенда:**  
+*   ✅ - Функция присутствует и работает согласно описанию.  
+*   ❌ - Функция отсутствует или не настроена.  
+*   **Жирный текст** - Отличие от стандартизированного значения.  
 
-## Общие рекомендации для всех конфигураций:
+### Файл №1 ocker-compose.zk-min.yml (Минимальная конфигурация с Zookeeper) 
+- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"  
+- ✅ kafdrop - протестирован на http://localhost:9000/  
+- ❌ Регистр схем: отсутствует  
+- ❌ REST API: отсутствует  
+- ✅ volume именованы!  
+_(ex. docker-compose.yml)_  
 
-### 1. Бутстрап сервер (Bootstrap Server)
-**Внешний адрес:** `localhost:9093` (для всех конфигураций) или `localhost:9091, localhost:9092, localhost:9093`
+### Файл №2 docker-compose.zk-dev-full.yml (Kafka for Developers)  
+- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"  
+- ✅ Регистр схем: `localhost:8081`(стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}  
+- ✅ REST API: `localhost:8082` 
+- ✅ kafdrop - протестирован на http://localhost:9000/   
+- ❌ volume не именованы!  
+_(ex. docker-compose2.yml)_  
 
-### 2. Регистр схем (Schema Registry)
-**Внешний адрес:** `localhost:8081`
+### Файл №3 docker-compose.kraft-1node.yml (KRaft - single node) 
+- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"  
+- ✅ kafdrop - протестирован на http://localhost:9000/  
+- ❌ Регистр схем: отсутствует  
+- ❌ REST API: отсутствует  
+- ❌ volume не именованы!  
+_(ex. docker-compose-kraft1.yml)_  
 
-### 3. REST API (Kafka REST Proxy)
-**Внешний адрес:** `localhost:8082` 
+### Файл №4 docker-compose.kraft-1c1b-full.yml (KRaft - 1 controller + 1 broker)  
+- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"  
+- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}   
+- ✅ REST API: `localhost:8082` 
+- ✅ kafka-ui - протестирован на http://localhost:8088/  
+- ❌ volume не именованы!   
+_(ex. docker-compose-kraft1-4.yml)_  
 
-## Анализ каждого файла:
+### Файл №5 docker-compose.kraft-3c3b-min.yml (KRaft - 3 controller + 3 broker) 
+- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"  
+- ✅ kafdrop - протестирован на http://localhost:9000/  
+- ❌ Регистр схем: отсутствует  
+- ❌ REST API: отсутствует  
+- ❌ volume не именованы!  
+_(ex. docker-compose-kraft3.yml)_  
 
-### Файл №1 docker-compose.yml (Минимальная конфигурация с Zookeeper)
-- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
-- ✅ kafdrop - протестирован на http://localhost:9000/
-- ❌ Регистр схем: отсутствует
-- ❌ REST API: отсутствует
-- ✅ volume именованы!
+### Файл №6 docker-compose.kraft-3c3b-sr.yml (KRaft - 3 controller + 3 broker + Schema Registry)  
+- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"  
+- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}  
+- ✅ kafdrop - протестирован на http://localhost:9000/  
+- ❌ REST API: отсутствует  
+- ❌ volume не именованы!  
+_(ex. docker-compose-kraft3-2.yml)_  
 
-### Файл №2 docker-compose2.yml (Kafka for Developers)
-- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
-- ✅ Регистр схем: `localhost:8081`(стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
-- ✅ REST API: `localhost:8082`
-- ✅ kafdrop - протестирован на http://localhost:9000/
-- ❌ volume не именованы!
+### Файл №7 docker-compose.kraft-3c3b-sr-ui.yml (KRaft - 3 controller + 3 broker + Schema Registry + Kafka UI)  
+- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"  
+- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}  
+- ✅ kafka-ui - протестирован на http://localhost:8088/  
+- ❌ REST API: отсутствует  
+- ❌ volume не именованы!  
+_(ex. docker-compose-kraft3-3.yml)_
 
-### Файл №3 docker-compose-kraft1.yml (KRaft - single node)
-- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
-- ✅ kafdrop - протестирован на http://localhost:9000/
-- ❌ Регистр схем: отсутствует
-- ❌ REST API: отсутствует
-- ❌ volume не именованы!
+### Файл №8 docker-compose.kraft-3c3b-complete.yml (Полная конфигурация)  
+- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"  
+- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}  
+- ✅ REST API: `localhost:8082`  
+- ✅ kafka-ui - протестирован на http://localhost:8088/  
+- ❌ volume не именованы!  
+_(ex. docker-compose-kraft3-4.yml)_  
 
-### Файл №4 docker-compose-kraft1-4.yml (KRaft - 1 controller + 1 broker)
-- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
-- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"} 
-- ✅ REST API: `localhost:8082`
-- ✅ kafka-ui - протестирован на http://localhost:8088/
-- ❌ volume не именованы!
-
-### Файл №5 docker-compose-kraft3.yml (KRaft - 3 controller + 3 broker)
-- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"
-- ✅ kafdrop - протестирован на http://localhost:9000/
-- ❌ Регистр схем: отсутствует
-- ❌ REST API: отсутствует
-- ❌ volume не именованы!
-
-### Файл №6 docker-compose-kraft3-2.yml (KRaft - 3 controller + 3 broker + Schema Registry)
-- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"
-- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
-- ✅ kafdrop - протестирован на http://localhost:9000/
-- ❌ REST API: отсутствует
-- ❌ volume не именованы!
-
-### Файл №7 docker-compose-kraft3-3.yml (KRaft - 3 controller + 3 broker + Schema Registry + Kafka UI)
-- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"
-- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
-- ✅ kafka-ui - протестирован на http://localhost:8088/
-- ❌ REST API: отсутствует
-- ❌ volume не именованы!
-
-### Файл №8 docker-compose-kraft3-4.yml (Полная конфигурация) 
-- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"
-- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
-- ✅ REST API: `localhost:8082`
-- ✅ kafka-ui - протестирован на http://localhost:8088/
-- ❌ volume не именованы!
-
-### Файл №9 docker-compose-kraft3-5.yml (Полная конфигурация) - см в заголовке `Проблема`
-- ✅ Бутстрап: `localhost:29092` - через broker-1 
-- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
-- ✅ REST API: `localhost:8082`
-- ✅ kafka-ui - протестирован на http://localhost:8088/
-- ❌ volume не именованы!
-
-
-## Рекомендуемые изменения для стандартизации:
-После этих изменений внешние приложения смогут подключаться единообразно:
-- Бутстрап сервер: `localhost:9093` или `localhost:9091, localhost:9092, localhost:9093` 
-- Регистр схем: `localhost:8081`
-- REST API: `localhost:8082`
+### Файл №9 docker-compose.kraft-3c3b-broken-bootstrap.yml (Полная конфигурация) - см в заголовке `Проблема`   
+- ✅ Бутстрап: `localhost:29092` - через broker-1  
+- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}  
+- ✅ REST API: `localhost:8082`  
+- ✅ kafka-ui - протестирован на http://localhost:8088/  
+- ❌ volume не именованы!  
+_(ex. docker-compose-kraft3-5.yml)_  

@@ -1,3 +1,4 @@
+# 1. docker-compose.yml -> docker-compose.zk-min.yml
 # Минимальная конфигурация
 # zookeeper
 # kafka

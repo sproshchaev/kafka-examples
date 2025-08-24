@@ -1,3 +1,4 @@
+# 9. docker-compose-kraft3-5.yml -> docker-compose.kraft-3c3b-broken-bootstrap.yml
 # Бутстрап: `localhost:29092` (через broker-1) - возможно на продюсере можно не указывать все 3 брокера, а только один localhost:29092?
 # Эта конфигурация запускает кластер Kafka в KRaft режиме (без Zookeeper) с разделением ролей:
 # 3 контроллера (Controller Nodes): controller-1, controller-2, controller-3. Их роль строго ограничена управлением метаданными кластера.

@@ -1,9 +1,10 @@
+# 6. docker-compose-kraft3-2.yml -> docker-compose.kraft-3c3b-sr.yml
 # Эта конфигурация запускает кластер Kafka в KRaft режиме (без Zookeeper) с разделением ролей:
 # 3 контроллера (Controller Nodes): controller-1, controller-2, controller-3. Их роль строго ограничена управлением метаданными кластера.
 # 3 брокера (Broker Nodes): broker-1, broker-2, broker-3. Они отвечают за хранение и обработку данных (топиков и партиций).
 # Фактор репликации по умолчанию не задан явно в этой конфигурации на уровне брокеров. Он обычно указывается при создании топика.
 # + Регистр схем. (Без интерфейса. Проверить: curl http://localhost:8081/config -> "{"compatibilityLevel":"BACKWARD"}% ")
-# kafka-ui (вместо Kafdrop) по адресу http://localhost:8088/ (в нем можно смотреть регистр схем!)
+# Kafdrop
 # Запускается (!)
 
 version: "3"
@@ -152,18 +153,36 @@ services:
       # Фактор репликации для служебного топика Schema Registry
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 1
 
+
+  # kafdrop
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:4.0.1
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      # Подключение к брокерам по внутренним адресам в Docker сети
+      KAFKA_BROKERCONNECT: "broker-1:9092,broker-2:9092,broker-3:9092"
+      JVM_OPTS: "-Xms32M -Xmx64M"
+      SERVER_SERVLET_CONTEXT_PATH: "/"
+    depends_on:
+      - broker-1
+      - broker-2
+      - broker-3
+
   # https://docs.kafka-ui.provectus.io/configuration/configuration-file
 
-  kafka-ui:
-    container_name: kafka-ui
-    image: provectuslabs/kafka-ui:master
-    ports:
-      - 8088:8080
-    depends_on:
-      - schema-registry
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      # Подключение к брокерам по внутренним адресам в Docker сети (остаётся без изменений)
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: PLAINTEXT://broker-1:9092,broker-2:9092,broker-3:9092
-      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
-      DYNAMIC_CONFIG_ENABLED: 'true'
+  # kafka-ui:
+  #     container_name: kafka-ui
+  #     image: provectuslabs/kafka-ui:master
+  #     ports:
+  #       - 8088:8080
+  #     depends_on:
+  #       - schema-registry
+  #     environment:
+  #       KAFKA_CLUSTERS_0_NAME: local
+  #       # Подключение к брокерам по внутренним адресам в Docker сети
+  #       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: PLAINTEXT://broker-1:9092,PLAINTEXT://broker-2:9092,PLAINTEXT://broker-3:9092
+  #       KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+  #       DYNAMIC_CONFIG_ENABLED: 'true'

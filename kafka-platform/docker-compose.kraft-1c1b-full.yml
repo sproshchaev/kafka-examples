@@ -1,3 +1,4 @@
+# 4. docker-compose-kraft1-4.yml -> docker-compose.kraft-1c1b-full.yml
 # Минимальное число брокеров
 # 1) kafka - Kraft - 1 контроллер и 1 брокер
 # 2) Регистр схем. (Без интерфейса. Проверить: curl http://localhost:8081/config -> "{"compatibilityLevel":"BACKWARD"}% ")
