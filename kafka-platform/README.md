@@ -68,8 +68,9 @@
 - ❌ volume не именованы!
 
 ### Файл №7 docker-compose-kraft3-3.yml (KRaft - 3 controller + 3 broker + Schema Registry + Kafka UI)
-- ✅ Бутстрап: `localhost:29092` (через broker-1)
+- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"
 - ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
+- ✅ kafka-ui - протестирован на http://localhost:8088/
 - ❌ REST API: отсутствует
 - ❌ volume не именованы!
 
