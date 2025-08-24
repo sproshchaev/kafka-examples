@@ -54,19 +54,19 @@
 - ❌ Регистр схем: отсутствует
 - ❌ REST API: отсутствует
 
-### Файл 6 (KRaft - 3 controller + 3 broker + Schema Registry)
+### Файл №6 docker-compose-kraft3-2.yml (KRaft - 3 controller + 3 broker + Schema Registry)
 - ✅ Бутстрап: `localhost:29092` (через broker-1)
-- ✅ Регистр схем: `localhost:8085` (нестандартный порт)
+- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
 - ❌ REST API: отсутствует
 
-### Файл 7 (KRaft - 3 controller + 3 broker + Schema Registry + Kafka UI)
+### Файл №7 docker-compose-kraft3-3.yml (KRaft - 3 controller + 3 broker + Schema Registry + Kafka UI)
 - ✅ Бутстрап: `localhost:29092` (через broker-1)
-- ✅ Регистр схем: `localhost:8085` (нестандартный порт)
+- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
 - ❌ REST API: отсутствует
 
-### Файл 8 (Полная конфигурация)
+### Файл №8 docker-compose-kraft3-4.yml (Полная конфигурация) 
 - ✅ Бутстрап: `localhost:29092` (через broker-1)
-- ✅ Регистр схем: `localhost:8085` (нестандартный порт)
+- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
 - ✅ REST API: `localhost:8082`
 
 ## Рекомендуемые изменения для стандартизации:

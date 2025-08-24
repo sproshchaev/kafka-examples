@@ -2,7 +2,7 @@
 # 3 контроллера (Controller Nodes): controller-1, controller-2, controller-3. Их роль строго ограничена управлением метаданными кластера.
 # 3 брокера (Broker Nodes): broker-1, broker-2, broker-3. Они отвечают за хранение и обработку данных (топиков и партиций).
 # Фактор репликации по умолчанию не задан явно в этой конфигурации на уровне брокеров. Он обычно указывается при создании топика.
-# + Регистр схем. (Без интерфейса. Проверить: curl http://localhost:8085/config -> "{"compatibilityLevel":"BACKWARD"}% ")
+# + Регистр схем. (Без интерфейса. Проверить: curl http://localhost:8081/config -> "{"compatibilityLevel":"BACKWARD"}% ")
 # kafka-ui (вместо Kafdrop) по адресу http://localhost:8088/ (в нем можно смотреть регистр схем!)
 # Kafka REST (проверил в Postman на http://localhost:8082)
 # Запускается (!)
@@ -138,12 +138,12 @@ services:
     hostname: schema-registry
     container_name: schema-registry
     ports:
-      - "8085:8085"
+      - "8081:8081"
     depends_on:
       - broker-1
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8085
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
       SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://broker-1:9092
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
@@ -160,7 +160,7 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: PLAINTEXT://broker-1:9092,PLAINTEXT://broker-2:9092,PLAINTEXT://broker-3:9092
-      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8085
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
       DYNAMIC_CONFIG_ENABLED: 'true'
 
   # Kafka REST Proxy
@@ -182,6 +182,6 @@ services:
       KAFKA_REST_LISTENERS: http://0.0.0.0:8082
       # Убрана настройка ZooKeeper, так как мы используем KRaft режим
       # Подключение к Schema Registry
-      KAFKA_REST_SCHEMA_REGISTRY_URL: http://schema-registry:8085
+      KAFKA_REST_SCHEMA_REGISTRY_URL: http://schema-registry:8081
       # Включаем отладку
       KAFKA_REST_DEBUG: 'true'
