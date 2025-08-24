@@ -28,45 +28,53 @@
 
 ## Анализ каждого файла:
 
-### Файл 1 (Минимальная конфигурация с Zookeeper)
-- ✅ Бутстрап: `localhost:9093`
+### Файл №1 docker-compose.yml (Минимальная конфигурация с Zookeeper)
+- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
 - ❌ Регистр схем: отсутствует
 - ❌ REST API: отсутствует
+- ✅ volume именованы!
 
-### Файл 2 (Kafka for Developers)
-- ✅ Бутстрап: `localhost:9093`
-- ✅ Регистр схем: `localhost:8081`
+### Файл №2 docker-compose2.yml (Kafka for Developers)
+- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
+- ✅ Регистр схем: `localhost:8081`(стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
 - ✅ REST API: `localhost:8082`
+- ❌ volume не именованы!
 
-### Файл 3 (KRaft - single node)
-- ✅ Бутстрап: `localhost:29092`
+### Файл №3 docker-compose-kraft1.yml (KRaft - single node)
+- ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
 - ❌ Регистр схем: отсутствует
 - ❌ REST API: отсутствует
+- ❌ volume не именованы!
 
 ### Файл 4 docker-compose-kraft1-4.yml (KRaft - 1 controller + 1 broker)
 - ✅ Бутстрап: `localhost:29092`
 - ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"} 
 - ✅ REST API: `localhost:8082`
+- ❌ volume не именованы!
 
 ### Файл 5 (KRaft - 3 controller + 3 broker)
 - ✅ Бутстрап: `localhost:29092` (через broker-1)
 - ❌ Регистр схем: отсутствует
 - ❌ REST API: отсутствует
+- ❌ volume не именованы!
 
 ### Файл №6 docker-compose-kraft3-2.yml (KRaft - 3 controller + 3 broker + Schema Registry)
 - ✅ Бутстрап: `localhost:29092` (через broker-1)
 - ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
 - ❌ REST API: отсутствует
+- ❌ volume не именованы!
 
 ### Файл №7 docker-compose-kraft3-3.yml (KRaft - 3 controller + 3 broker + Schema Registry + Kafka UI)
 - ✅ Бутстрап: `localhost:29092` (через broker-1)
 - ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
 - ❌ REST API: отсутствует
+- ❌ volume не именованы!
 
 ### Файл №8 docker-compose-kraft3-4.yml (Полная конфигурация) 
 - ✅ Бутстрап: `localhost:29092` (через broker-1)
 - ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
 - ✅ REST API: `localhost:8082`
+- ❌ volume не именованы!
 
 ## Рекомендуемые изменения для стандартизации:
 

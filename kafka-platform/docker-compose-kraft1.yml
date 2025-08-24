@@ -13,7 +13,7 @@ services:
     container_name: kafka-single
     ports:
       - "9092:9092"      # Для внутреннего общения (PLAINTEXT)
-      - "29092:29093"    # Для внешнего общения (PLAINTEXT_HOST)
+      - "9093:9094"      # Для внешнего общения (PLAINTEXT_HOST) - Изменено: хост 9093 -> контейнер 9094
       - "9101:9101"      # JMX порт
     environment:
       # Уникальный ID кластера (генерируется один раз)
@@ -26,10 +26,11 @@ services:
       KAFKA_NODE_ID: 1
 
       # Слушатели:
-      # - CONTROLLER для внутренней коммуникации контроллеров
-      # - PLAINTEXT для внутренней коммуникации брокеров
-      # - PLAINTEXT_HOST для внешних клиентов
-      KAFKA_LISTENERS: "PLAINTEXT://kafka-single:9092,CONTROLLER://kafka-single:9093,PLAINTEXT_HOST://0.0.0.0:29093"
+      # - CONTROLLER для внутренней коммуникации контроллеров (на порту 9093)
+      # - PLAINTEXT для внутренней коммуникации брокеров (на порту 9092)
+      # - PLAINTEXT_HOST для внешних клиентов (на порту 9094)
+      # Изменено: PLAINTEXT_HOST теперь на 9094
+      KAFKA_LISTENERS: "PLAINTEXT://kafka-single:9092,CONTROLLER://kafka-single:9093,PLAINTEXT_HOST://0.0.0.0:9094"
 
       # Карта соответствия имен слушателей и протоколов безопасности
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
@@ -41,9 +42,11 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
 
       # Адреса, по которым клиенты могут подключаться к брокеру
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-single:9092,PLAINTEXT_HOST://localhost:29092"
+      # Изменено: Внешний адрес теперь localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-single:9092,PLAINTEXT_HOST://localhost:9093"
 
       # Участники кворума контроллеров (в данном случае только один)
+      # Контроллер слушает на порту 9093
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-single:9093"
 
       # Фактор репликации для служебных топиков (поскольку у нас 1 брокер, ставим 1)
@@ -64,6 +67,7 @@ services:
     ports:
       - "9000:9000"
     environment:
+      # Kafdrop подключается к внутреннему слушателю брокера
       KAFKA_BROKERCONNECT: "kafka-single:9092"
       JVM_OPTS: "-Xms32M -Xmx64M"
       SERVER_SERVLET_CONTEXT_PATH: "/"
