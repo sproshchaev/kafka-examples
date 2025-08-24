@@ -17,8 +17,7 @@
 ## Общие рекомендации для всех конфигураций:
 
 ### 1. Бутстрап сервер (Bootstrap Server)
-**Внешний адрес:** `localhost:9093` (для всех конфигураций)
-**Внутренний адрес:** `kafka:9092` или `broker-1:9092` (в зависимости от конфигурации)
+**Внешний адрес:** `localhost:9093` (для всех конфигураций) или `localhost:9091, localhost:9092, localhost:9093`
 
 ### 2. Регистр схем (Schema Registry)
 **Внешний адрес:** `localhost:8081`
@@ -30,6 +29,7 @@
 
 ### Файл №1 docker-compose.yml (Минимальная конфигурация с Zookeeper)
 - ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
+- ✅ kafdrop - протестирован на http://localhost:9000/
 - ❌ Регистр схем: отсутствует
 - ❌ REST API: отсутствует
 - ✅ volume именованы!
@@ -38,10 +38,12 @@
 - ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
 - ✅ Регистр схем: `localhost:8081`(стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
 - ✅ REST API: `localhost:8082`
+- ✅ kafdrop - протестирован на http://localhost:9000/
 - ❌ volume не именованы!
 
 ### Файл №3 docker-compose-kraft1.yml (KRaft - single node)
 - ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
+- ✅ kafdrop - протестирован на http://localhost:9000/
 - ❌ Регистр схем: отсутствует
 - ❌ REST API: отсутствует
 - ❌ volume не именованы!
@@ -90,18 +92,7 @@
 
 
 ## Рекомендуемые изменения для стандартизации:
-
-1. **Для всех KRaft-конфигураций** изменить порт брокера с `29092` на `9093` для единообразия
-2. **Для Schema Registry** везде использовать порт `8081` 
-3. **Добавить недостающие сервисы** в конфигурации где их нет
-
-Пример изменений для KRaft конфигураций:
-```yaml
-# В сервисе broker изменить:
-KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://localhost:9093"
-```
-
 После этих изменений внешние приложения смогут подключаться единообразно:
-- Бутстрап сервер: `localhost:9093`
+- Бутстрап сервер: `localhost:9093` или `localhost:9091, localhost:9092, localhost:9093` 
 - Регистр схем: `localhost:8081`
 - REST API: `localhost:8082`
