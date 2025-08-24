@@ -43,9 +43,9 @@
 - ❌ Регистр схем: отсутствует
 - ❌ REST API: отсутствует
 
-### Файл 4 (KRaft - 1 controller + 1 broker)
+### Файл 4 docker-compose-kraft1-4.yml (KRaft - 1 controller + 1 broker)
 - ✅ Бутстрап: `localhost:29092`
-- ✅ Регистр схем: `localhost:8085` (нестандартный порт)
+- ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"} 
 - ✅ REST API: `localhost:8082`
 
 ### Файл 5 (KRaft - 3 controller + 3 broker)

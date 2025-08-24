@@ -1,6 +1,6 @@
 # Минимальное число брокеров
 # 1) kafka - Kraft - 1 контроллер и 1 брокер
-# 2) Регистр схем. (Без интерфейса. Проверить: curl http://localhost:8085/config -> "{"compatibilityLevel":"BACKWARD"}% ")
+# 2) Регистр схем. (Без интерфейса. Проверить: curl http://localhost:8081/config -> "{"compatibilityLevel":"BACKWARD"}% ")
 # 3) kafka-ui (вместо Kafdrop) по адресу http://localhost:8088/ (в нем можно смотреть регистр схем!)
 # 4) Kafka REST (проверил в Postman на http://localhost:8082)
 # Запускается (!)
@@ -61,12 +61,12 @@ services:
     hostname: schema-registry
     container_name: schema-registry
     ports:
-      - "8085:8085"
+      - "8081:8081"
     depends_on:
       - broker-1
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8085
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
       SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://broker-1:9092
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
@@ -84,7 +84,7 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: PLAINTEXT://broker-1:9092
-      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8085
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
       DYNAMIC_CONFIG_ENABLED: 'true'
 
   # Kafka REST Proxy
@@ -103,6 +103,6 @@ services:
       KAFKA_REST_HOST_NAME: kafka-rest
       KAFKA_REST_LISTENERS: http://0.0.0.0:8082
       # Подключение к Schema Registry
-      KAFKA_REST_SCHEMA_REGISTRY_URL: http://schema-registry:8085
+      KAFKA_REST_SCHEMA_REGISTRY_URL: http://schema-registry:8081
       # Включаем отладку
       KAFKA_REST_DEBUG: 'true'
