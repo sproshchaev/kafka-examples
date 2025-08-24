@@ -1,0 +1,201 @@
+# Бутстрап: `localhost:29092` (через broker-1) - возможно на продюсере можно не указывать все 3 брокера, а только один localhost:29092?
+# Эта конфигурация запускает кластер Kafka в KRaft режиме (без Zookeeper) с разделением ролей:
+# 3 контроллера (Controller Nodes): controller-1, controller-2, controller-3. Их роль строго ограничена управлением метаданными кластера.
+# 3 брокера (Broker Nodes): broker-1, broker-2, broker-3. Они отвечают за хранение и обработку данных (топиков и партиций).
+# Фактор репликации по умолчанию не задан явно в этой конфигурации на уровне брокеров. Он обычно указывается при создании топика.
+# + Регистр схем. (Без интерфейса. Проверить: curl http://localhost:8081/config -> "{"compatibilityLevel":"BACKWARD"}% ")
+# kafka-ui (вместо Kafdrop) по адресу http://localhost:8088/ (в нем можно смотреть регистр схем!)
+# Kafka REST (проверил в Postman на http://localhost:8082)
+# Запускается (!)
+
+# Здесь определены два слушателя:
+#
+#  PLAINTEXT на порту 9092 - для внутренней коммуникации (используется kafka-ui, schema-registry, kafka-rest).
+#  PLAINTEXT_HOST на порту 29092 (внутри контейнера) - для внешних клиентов.
+#  Проброс портов - "29095:29092" означает, что порт 29095 на вашем хосте перенаправляется на порт 29092 внутри контейнера broker-1.
+#
+#  Однако, в KAFKA_ADVERTISED_LISTENERS для PLAINTEXT_HOST указан адрес PLAINTEXT_HOST://127.0.0.1:29092. Это означает, что брокер сообщает внешним клиентам подключаться к 127.0.0.1:29092. Но
+#  поскольку клиент работает на хосте, а не внутри контейнера, он будет интерпретировать 127.0.0.1:29092 как порт 29092 на хосте.
+#
+# Проблема: В вашей текущей конфигурации порт 29092 на хосте не проброшен ни к одному из контейнеров (смотрите секции ports всех сервисов).
+#  Это означает, что подключение к localhost:29092 с хоста не будет работать.
+
+
+version: "3"
+services:
+
+  # https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html
+
+  controller-1:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: controller-1
+    container_name: controller-1
+    environment:
+      KAFKA_PROCESS_ROLES: "controller"
+      KAFKA_NODE_ID: 1
+      # На каком сокете слушает:
+      KAFKA_LISTENERS: "CONTROLLER://controller-1:29092"
+      # Участники кворума при определении лидера:
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      # По какому префиксу искать первого слушателя при KRaft:
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  controller-2:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: controller-2
+    container_name: controller-2
+    depends_on:
+      - controller-1
+    ports:
+      - "9093:9092"
+      - "9102:9101"
+    environment:
+      KAFKA_PROCESS_ROLES: "controller"
+      KAFKA_NODE_ID: 2
+      KAFKA_LISTENERS: "CONTROLLER://controller-2:29092"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  controller-3:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: controller-3
+    container_name: controller-3
+    depends_on:
+      - controller-1
+      - controller-2
+    ports:
+      - "9094:9092"
+      - "9103:9101"
+    environment:
+      KAFKA_PROCESS_ROLES: "controller"
+      KAFKA_NODE_ID: 3
+      KAFKA_LISTENERS: "CONTROLLER://controller-3:29092"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  broker-1:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: broker-1
+    container_name: broker-1
+    ports:
+      - "9095:9092"
+      - "29095:29092"
+      - "9104:9101"
+    environment:
+      KAFKA_NODE_ID: 4
+      KAFKA_PROCESS_ROLES: "broker"
+      # Префикс слушателя у контроллера:
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      # Префикс слушателя для внутреннего общения брокеров:
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_LISTENERS: "PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://0.0.0.0:29092"
+      # Пары префикс слушателя - протокол безопасности:
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://127.0.0.1:29092" # Required for brokers
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  broker-2:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: broker-2
+    depends_on:
+      - broker-1
+    container_name: broker-2
+    ports:
+      - "9096:9092"
+      - "29096:29092"
+      - "9105:9101"
+    environment:
+      KAFKA_NODE_ID: 5
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://localhost:29092" # Required for brokers
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_PROCESS_ROLES: "broker"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      KAFKA_LISTENERS: "PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://0.0.0.0:29092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  broker-3:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: broker-3
+    depends_on:
+      - broker-2
+    container_name: broker-3
+    ports:
+      - "9097:9092"
+      - "29097:29092"
+      - "9106:9101"
+    environment:
+      KAFKA_NODE_ID: 6
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-3:9092,PLAINTEXT_HOST://localhost:29092" # Required for brokers
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_PROCESS_ROLES: "broker"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      KAFKA_LISTENERS: "PLAINTEXT://broker-3:9092,PLAINTEXT_HOST://0.0.0.0:29092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  # https://docs.confluent.io/platform/current/schema-registry/installation/config.html
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.6.1
+    hostname: schema-registry
+    container_name: schema-registry
+    ports:
+      - "8081:8081"
+    depends_on:
+      - broker-1
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://broker-1:9092
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
+
+  # https://docs.kafka-ui.provectus.io/configuration/configuration-file
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:master
+    ports:
+      - 8088:8080
+    depends_on:
+      - schema-registry
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: PLAINTEXT://broker-1:9092,PLAINTEXT://broker-2:9092,PLAINTEXT://broker-3:9092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+      DYNAMIC_CONFIG_ENABLED: 'true'
+
+  # Kafka REST Proxy
+  kafka-rest:
+    image: confluentinc/cp-kafka-rest:7.6.1
+    container_name: kafka-rest
+    hostname: kafka-rest
+    ports:
+      - "8082:8082"
+    depends_on:
+      - broker-1
+      - broker-2
+      - broker-3
+      - schema-registry
+    environment:
+      # Подключение к брокерам Kafka (внутренние адреса в Docker сети)
+      KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://broker-1:9092,PLAINTEXT://broker-2:9092,PLAINTEXT://broker-3:9092
+      KAFKA_REST_HOST_NAME: kafka-rest
+      KAFKA_REST_LISTENERS: http://0.0.0.0:8082
+      # Убрана настройка ZooKeeper, так как мы используем KRaft режим
+      # Подключение к Schema Registry
+      KAFKA_REST_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      # Включаем отладку
+      KAFKA_REST_DEBUG: 'true'
