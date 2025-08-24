@@ -75,9 +75,10 @@
 - ❌ volume не именованы!
 
 ### Файл №8 docker-compose-kraft3-4.yml (Полная конфигурация) 
-- ✅ Бутстрап: `localhost:29092` (через broker-1)
+- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"
 - ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
 - ✅ REST API: `localhost:8082`
+- ✅ kafka-ui - протестирован на http://localhost:8088/
 - ❌ volume не именованы!
 
 ## Рекомендуемые изменения для стандартизации:
