@@ -2,17 +2,17 @@
 
 ## Содержание конфигураций:
 
-| №  | Имя файла                                                                                        | bootstrap.servers                   | Kraft/Zoo | Schema Registry | REST API | Kafdrop/Kafka UI          | Volume names |
-| :- |:-------------------------------------------------------------------------------------------------|:------------------------------------|:----------|:----------------|:---------| :------------------------ |:-------------|
-| 1  | [docker-compose.zk-min.yml](docker-compose.zk-min.yml)                                           | `localhost:9093`                    | Zoo       | ❌              | ❌       | `http://localhost:9000`   | ✅           |
-| 2  | [docker-compose.zk-dev-full.yml](docker-compose.zk-dev-full.yml)                                 | `localhost:9093`                    | Zoo       | `:8081`         | `:8082`  | `http://localhost:9000`   | ❌           |
-| 3  | [docker-compose.kraft-1node.yml](docker-compose.kraft-1node.yml)                                 | `localhost:9093`                    | Kraft     | ❌              | ❌       | `http://localhost:9000`   | ❌           |
-| 4  | [docker-compose.kraft-1c1b-full.yml](docker-compose.kraft-1c1b-full.yml)                         | `localhost:9093`                    | Kraft     | `:8081`         | `:8082`  | `http://localhost:8088`   | ❌           |
-| 5  | [docker-compose.kraft-3c3b-min.yml](docker-compose.kraft-3c3b-min.yml)                           | `localhost:9091,:9092,:9093`        | Kraft     | ❌              | ❌       | `http://localhost:9000`   | ❌           |
-| 6  | [docker-compose.kraft-3c3b-sr.yml](docker-compose.kraft-3c3b-sr.yml)                             | `localhost:9091,:9092,:9093`        | Kraft     | `:8081`         | ❌       | `http://localhost:9000`   | ❌           |
-| 7  | [docker-compose.kraft-3c3b-sr-ui.yml](docker-compose.kraft-3c3b-sr-ui.yml)                       | `localhost:9091,:9092,:9093`        | Kraft     | `:8081`         | ❌       | `http://localhost:8088`   | ❌           |
-| 8  | [docker-compose.kraft-3c3b-complete.yml](docker-compose.kraft-3c3b-complete.yml)                 | `localhost:9091,:9092,:9093`        | Kraft     | `:8081`         | `:8082`  | `http://localhost:8088`   | ❌           |
-| 9  | [docker-compose.kraft-3c3b-broken-bootstrap.yml](docker-compose.kraft-3c3b-broken-bootstrap.yml) | `localhost:29092` (**отличается!**) | Kraft     | `:8081`         | `:8082`  | `http://localhost:8088`   | ❌           |
+| №  | Имя файла                                                                                        | bootstrap.servers                   | ZooKeeper<br/>KRaft | Schema Registry | REST API | Kafdrop(:9000)<br/>Kafka UI(:8088) | Volume names |
+| :- |:-------------------------------------------------------------------------------------------------|:------------------------------------|:--------------------|:----------------|:---------|:-----------------------------------|:-------------|
+| 1  | [docker-compose.zk-min.yml](docker-compose.zk-min.yml)                                           | `localhost:9093`                    | ZooKeeper           | ❌              | ❌       | `http://localhost:9000`            | ✅           |
+| 2  | [docker-compose.zk-dev-full.yml](docker-compose.zk-dev-full.yml)                                 | `localhost:9093`                    | ZooKeeper           | `:8081`         | `:8082`  | `http://localhost:9000`            | ❌           |
+| 3  | [docker-compose.kraft-1node.yml](docker-compose.kraft-1node.yml)                                 | `localhost:9093`                    | KRaft               | ❌              | ❌       | `http://localhost:9000`            | ❌           |
+| 4  | [docker-compose.kraft-1c1b-full.yml](docker-compose.kraft-1c1b-full.yml)                         | `localhost:9093`                    | KRaft               | `:8081`         | `:8082`  | `http://localhost:8088`            | ❌           |
+| 5  | [docker-compose.kraft-3c3b-min.yml](docker-compose.kraft-3c3b-min.yml)                           | `localhost:9091,:9092,:9093`        | KRaft               | ❌              | ❌       | `http://localhost:9000`            | ❌           |
+| 6  | [docker-compose.kraft-3c3b-sr.yml](docker-compose.kraft-3c3b-sr.yml)                             | `localhost:9091,:9092,:9093`        | KRaft               | `:8081`         | ❌       | `http://localhost:9000`            | ❌           |
+| 7  | [docker-compose.kraft-3c3b-sr-ui.yml](docker-compose.kraft-3c3b-sr-ui.yml)                       | `localhost:9091,:9092,:9093`        | KRaft               | `:8081`         | ❌       | `http://localhost:8088`            | ❌           |
+| 8  | [docker-compose.kraft-3c3b-complete.yml](docker-compose.kraft-3c3b-complete.yml)                 | `localhost:9091,:9092,:9093`        | KRaft               | `:8081`         | `:8082`  | `http://localhost:8088`            | ❌           |
+| 9  | [docker-compose.kraft-3c3b-broken-bootstrap.yml](docker-compose.kraft-3c3b-broken-bootstrap.yml) | `localhost:29092` (**отличается!**) | KRaft               | `:8081`         | `:8082`  | `http://localhost:8088`            | ❌           |
 
 **Легенда:**  
 *   ✅ - Функция присутствует и работает согласно описанию.  
