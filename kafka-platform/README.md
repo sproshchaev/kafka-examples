@@ -54,15 +54,16 @@
 - ❌ volume не именованы!
 
 ### Файл №5 docker-compose-kraft3.yml (KRaft - 3 controller + 3 broker)
-- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` (через broker-1) - протестирован webinar-02 "producer service/consumer service"
+- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"
 - ✅ kafdrop - протестирован на http://localhost:9000/
 - ❌ Регистр схем: отсутствует
 - ❌ REST API: отсутствует
 - ❌ volume не именованы!
 
 ### Файл №6 docker-compose-kraft3-2.yml (KRaft - 3 controller + 3 broker + Schema Registry)
-- ✅ Бутстрап: `localhost:29092` (через broker-1)
+- ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"
 - ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
+- ✅ kafdrop - протестирован на http://localhost:9000/
 - ❌ REST API: отсутствует
 - ❌ volume не именованы!
 

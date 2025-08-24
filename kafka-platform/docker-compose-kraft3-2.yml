@@ -32,9 +32,7 @@ services:
     container_name: controller-2
     depends_on:
       - controller-1
-    ports:
-      - "9093:9092"
-      - "9102:9101"
+    # Убраны порты 9093:9092 и 9102:9101, так как контроллеры обычно не требуют внешних портов для клиентов
     environment:
       KAFKA_PROCESS_ROLES: "controller"
       KAFKA_NODE_ID: 2
@@ -50,9 +48,7 @@ services:
     depends_on:
       - controller-1
       - controller-2
-    ports:
-      - "9094:9092"
-      - "9103:9101"
+    # Убраны порты 9094:9092 и 9103:9101, см. комментарий выше
     environment:
       KAFKA_PROCESS_ROLES: "controller"
       KAFKA_NODE_ID: 3
@@ -66,9 +62,9 @@ services:
     hostname: broker-1
     container_name: broker-1
     ports:
-      - "9095:9092"
-      - "29095:29092"
-      - "9104:9101"
+      - "9095:9092"       # Внутренний порт 9092 для общения внутри Docker
+      - "9091:29092"      # Изменено: Внешний порт 9091 хоста -> 29092 контейнера
+      - "9104:9101"       # JMX
     environment:
       KAFKA_NODE_ID: 4
       KAFKA_PROCESS_ROLES: "broker"
@@ -76,10 +72,12 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       # Префикс слушателя для внутреннего общения брокеров:
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      # Изменено: broker-1 слушает на 29092 для внешнего соединения
       KAFKA_LISTENERS: "PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://0.0.0.0:29092"
       # Пары префикс слушателя - протокол безопасности:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://127.0.0.1:29092" # Required for brokers
+      # Изменено: Адрес, по которому внешние клиенты будут подключаться с хоста
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://host.docker.internal:9091"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
 
@@ -90,18 +88,20 @@ services:
       - broker-1
     container_name: broker-2
     ports:
-      - "9096:9092"
-      - "29096:29092"
-      - "9105:9101"
+      - "9096:9092"       # Внутренний порт 9092 для общения внутри Docker
+      - "9092:29092"      # Изменено: Внешний порт 9092 хоста -> 29092 контейнера
+      - "9105:9101"       # JMX
     environment:
       KAFKA_NODE_ID: 5
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://localhost:29092" # Required for brokers
+      # Изменено: Адрес, по которому внешние клиенты будут подключаться с хоста
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://host.docker.internal:9092"
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
       KAFKA_PROCESS_ROLES: "broker"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      # Изменено: broker-2 слушает на 29092 для внешнего соединения
       KAFKA_LISTENERS: "PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://0.0.0.0:29092"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
@@ -113,18 +113,20 @@ services:
       - broker-2
     container_name: broker-3
     ports:
-      - "9097:9092"
-      - "29097:29092"
-      - "9106:9101"
+      - "9097:9092"       # Внутренний порт 9092 для общения внутри Docker
+      - "9093:29092"      # Изменено: Внешний порт 9093 хоста -> 29092 контейнера
+      - "9106:9101"       # JMX
     environment:
       KAFKA_NODE_ID: 6
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-3:9092,PLAINTEXT_HOST://localhost:29092" # Required for brokers
+      # Изменено: Адрес, по которому внешние клиенты будут подключаться с хоста
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-3:9092,PLAINTEXT_HOST://host.docker.internal:9093"
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
       KAFKA_PROCESS_ROLES: "broker"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
+      # Изменено: broker-3 слушает на 29092 для внешнего соединения
       KAFKA_LISTENERS: "PLAINTEXT://broker-3:9092,PLAINTEXT_HOST://0.0.0.0:29092"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
@@ -139,13 +141,16 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - broker-1
+      - broker-1 # Зависимость оставлена, но Schema Registry подключается по внутреннему адресу
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
       SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
+      # Подключение к брокеру по внутреннему адресу в Docker сети
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://broker-1:9092
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
+      # Фактор репликации для служебного топика Schema Registry
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 1
 
 
   # kafdrop
@@ -156,6 +161,7 @@ services:
     ports:
       - "9000:9000"
     environment:
+      # Подключение к брокерам по внутренним адресам в Docker сети
       KAFKA_BROKERCONNECT: "broker-1:9092,broker-2:9092,broker-3:9092"
       JVM_OPTS: "-Xms32M -Xmx64M"
       SERVER_SERVLET_CONTEXT_PATH: "/"
@@ -175,6 +181,7 @@ services:
   #       - schema-registry
   #     environment:
   #       KAFKA_CLUSTERS_0_NAME: local
+  #       # Подключение к брокерам по внутренним адресам в Docker сети
   #       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: PLAINTEXT://broker-1:9092,PLAINTEXT://broker-2:9092,PLAINTEXT://broker-3:9092
   #       KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
   #       DYNAMIC_CONFIG_ENABLED: 'true'
