@@ -1,0 +1,72 @@
+# 3.1. docker-compose.kraft-1node.kafka-ui.yml
+# Конфигурация docker-compose.yml с одним узлом в режиме KRaft (роли controller и broker совмещены)
+# 1) kafka (controller + broker)
+# 2) kafka-ui (http://localhost:8088)
+
+version: "3"
+services:
+  # Единственный узел, выполняющий обе роли: controller и broker
+  kafka-single:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: kafka-single
+    container_name: kafka-single
+    ports:
+      - "9092:9092"      # Для внутреннего общения (PLAINTEXT)
+      - "9093:9094"      # Для внешнего общения (PLAINTEXT_HOST) - хост 9093 -> контейнер 9094
+      - "9101:9101"      # JMX порт
+    environment:
+      # Уникальный ID кластера (генерируется один раз)
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+      # Роли этого узла - и контроллер, и брокер
+      KAFKA_PROCESS_ROLES: "broker,controller"
+
+      # Уникальный ID узла
+      KAFKA_NODE_ID: 1
+
+      # Слушатели:
+      # - CONTROLLER для внутренней коммуникации контроллеров (на порту 9093)
+      # - PLAINTEXT для внутренней коммуникации брокеров (на порту 9092)
+      # - PLAINTEXT_HOST для внешних клиентов (на порту 9094)
+      KAFKA_LISTENERS: "PLAINTEXT://kafka-single:9092,CONTROLLER://kafka-single:9093,PLAINTEXT_HOST://0.0.0.0:9094"
+
+      # Карта соответствия имен слушателей и протоколов безопасности
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+
+      # Имя слушателя для контроллера
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+
+      # Имя слушателя для внутренней коммуникации между брокерами
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+
+      # Адреса, по которым клиенты могут подключаться к брокеру
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-single:9092,PLAINTEXT_HOST://localhost:9093"
+
+      # Участники кворума контроллеров (в данном случае только один)
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-single:9093"
+
+      # Фактор репликации для служебных топиков (поскольку у нас 1 брокер, ставим 1)
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      # Включаем автоматическое создание топиков
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+      # JMX настройки
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+
+  # Заменяем kafdrop на kafka-ui
+  kafka-ui:
+    image: provectuslabs/kafka-ui:master
+    container_name: kafka-ui-single
+    ports:
+      - "8088:8080" # kafka-ui будет доступен по адресу http://localhost:8088
+    depends_on:
+      - kafka-single
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      # Подключение к брокеру Kafka используя внутреннее имя сервиса в Docker
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: PLAINTEXT://kafka-single:9092
+      DYNAMIC_CONFIG_ENABLED: 'true'
