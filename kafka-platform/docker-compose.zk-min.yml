@@ -3,7 +3,6 @@
 # zookeeper
 # kafka
 # kafdrop
-# Запускается (!), volume именованы!
 
 version: '3.8'
 services:

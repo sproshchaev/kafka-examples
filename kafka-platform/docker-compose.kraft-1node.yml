@@ -3,7 +3,6 @@
 # kafka-platform/docker/kraft-single-broker.yml
 # 1) kafka
 # 2) Kafdrop
-# Запускается (!)
 
 version: "3"
 services:

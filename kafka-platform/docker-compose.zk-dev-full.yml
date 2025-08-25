@@ -5,7 +5,6 @@
 #  3) Kafdrop Порт http://localhost:9000/
 #  4) schema-registry Порт http://localhost:8081/ (нет интерфейса - так и надо! Проверить: curl http://localhost:8081/config -> "{"compatibilityLevel":"BACKWARD"}% ")
 #  5) kafka-rest Порт http://localhost:8082
-# Запускается (!)
 
 version: '3.8'
 services:
