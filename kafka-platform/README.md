@@ -17,6 +17,22 @@
 `4.`  Один брокер с контроллером KRaft, Schema Registry, Kafka REST, Kafka UI: [docker-compose.kraft-1c1b-full.yml](docker-compose.kraft-1c1b-full.yml)  
 `4.1` Один брокер с контроллером KRaft, Schema Registry, Kafka REST, Kafdrop: [docker-compose.kraft-1c1b-full.kafdrop.yml](docker-compose.kraft-1c1b-full.kafdrop.yml)   
 
+Добавить!!!
+```
+  schema-registry-ui:
+    image: landoop/schema-registry-ui:0.9.5
+    container_name: schema-registry-ui
+    depends_on:
+      - schema-registry
+    ports:
+      - "8001:8000"
+    environment:
+      SCHEMAREGISTRY_URL: http://schema-registry:8081
+      PROXY: 'true'
+    healthcheck:
+      test: 'wget --quiet --tries=1 --spider http://localhost:8000 || exit 1'
+```
+
 | №   | Имя файла                                                                                        | bootstrap.servers                   | ZooKeeper<br/>KRaft | Schema Registry | Kafka REST API | Kafdrop(:9000)<br/>Kafka UI(:8088) | Volume names |
 |:----|:-------------------------------------------------------------------------------------------------|:------------------------------------|:--------------------|:----------------|:---------------|:-----------------------------------|:-------------|
 | 1   | [docker-compose.zk-min.yml](docker-compose.zk-min.yml)                                           | `localhost:9093`                    | ZooKeeper           | ❌              | ❌             | `http://localhost:9000`            | ✅           |
