@@ -4,7 +4,8 @@
 #  2) Брокер #1 Порт PLAINTEXT_HOST://localhost:9093
 #  3) Kafdrop Порт http://localhost:9000/
 #  4) schema-registry Порт http://localhost:8081/ (нет интерфейса - так и надо! Проверить: curl http://localhost:8081/config -> "{"compatibilityLevel":"BACKWARD"}% ")
-#  5) kafka-rest Порт http://localhost:8082
+#  4.1) schema-registry-ui на http://localhost:8001/
+#  6) kafka-rest Порт http://localhost:8082
 
 version: '3.8'
 services:
@@ -60,6 +61,19 @@ services:
       SCHEMA_REGISTRY_DEBUG: 'true'
     depends_on:
       - kafka
+
+  schema-registry-ui:
+    image: landoop/schema-registry-ui:0.9.5
+    container_name: schema-registry-ui
+    depends_on:
+      - schema-registry
+    ports:
+      - "8001:8000"
+    environment:
+      SCHEMAREGISTRY_URL: http://schema-registry:8081
+      PROXY: 'true'
+    healthcheck:
+      test: 'wget --quiet --tries=1 --spider http://localhost:8000 || exit 1'
 
   kafka-rest:
     image: confluentinc/cp-kafka-rest:7.6.1
