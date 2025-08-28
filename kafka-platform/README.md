@@ -31,7 +31,7 @@
 | 5   | [docker-compose.kraft-3c3b-min.yml](docker-compose.kraft-3c3b-min.yml)              | `localhost:9091,:9092,:9093`        | KRaft               | ❌              | ❌             | `http://localhost:9000`            | ❌           |
 | 6   | [docker-compose.kraft-3c3b-sr.yml](docker-compose.kraft-3c3b-sr.yml)               | `localhost:9091,:9092,:9093`        | KRaft               | `:8081`/`:8001` | ❌             | `http://localhost:9000`            | ❌           |
 | 7   | [docker-compose.kraft-3c3b-sr-ui.yml](docker-compose.kraft-3c3b-sr-ui.yml)            | `localhost:9091,:9092,:9093`        | KRaft               | `:8081`/`:8001` | ❌             | `http://localhost:8088`            | ❌           |
-| 8   | [docker-compose.kraft-3c3b-complete.yml](docker-compose.kraft-3c3b-complete.yml)         | `localhost:9091,:9092,:9093`        | KRaft               | `:8081`         | `:8082`        | `http://localhost:8088`            | ❌           |
+| 8   | [docker-compose.kraft-3c3b-complete.yml](docker-compose.kraft-3c3b-complete.yml)         | `localhost:9091,:9092,:9093`        | KRaft               | `:8081`/`:8001` | `:8082`        | `http://localhost:8088`            | ❌           |
 | 9   | [docker-compose.kraft-3c3b-broken-bootstrap.yml](docker-compose.kraft-3c3b-broken-bootstrap.yml) | `localhost:29092` (**отличается!**) | KRaft               | `:8081`         | `:8082`        | `http://localhost:8088`            | ❌           |
 
 **Легенда:**  
@@ -133,6 +133,7 @@ _(ex. docker-compose-kraft3-3.yml)_
 ### Файл №8 docker-compose.kraft-3c3b-complete.yml (Полная конфигурация)  
 - ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"  
 - ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}  
+- ✅ schema-registry-ui: проверен http://localhost:8001  
 - ✅ REST API: `localhost:8082`  
 - ✅ kafka-ui - протестирован на http://localhost:8088/  
 - ❌ volume не именованы!  
