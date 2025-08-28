@@ -3,7 +3,8 @@
 # 3 контроллера (Controller Nodes): controller-1, controller-2, controller-3. Их роль строго ограничена управлением метаданными кластера.
 # 3 брокера (Broker Nodes): broker-1, broker-2, broker-3. Они отвечают за хранение и обработку данных (топиков и партиций).
 # Фактор репликации по умолчанию не задан явно в этой конфигурации на уровне брокеров. Он обычно указывается при создании топика.
-# + Регистр схем. (Без интерфейса. Проверить: curl http://localhost:8081/config -> "{"compatibilityLevel":"BACKWARD"}% ")
+# Регистр схем. (Проверить: curl http://localhost:8081/config -> "{"compatibilityLevel":"BACKWARD"}% ")
+# Schema Registry UI по адресу http://localhost:8001/
 # kafka-ui (вместо Kafdrop) по адресу http://localhost:8088/ (в нем можно смотреть регистр схем!)
 
 version: "3"
@@ -151,6 +152,19 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
       # Фактор репликации для служебного топика Schema Registry
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 1
+
+  schema-registry-ui:
+    image: landoop/schema-registry-ui:0.9.5
+    container_name: schema-registry-ui
+    depends_on:
+      - schema-registry
+    ports:
+      - "8001:8000"
+    environment:
+      SCHEMAREGISTRY_URL: http://schema-registry:8081
+      PROXY: 'true'
+    healthcheck:
+      test: 'wget --quiet --tries=1 --spider http://localhost:8000 || exit 1'
 
   # https://docs.kafka-ui.provectus.io/configuration/configuration-file
 
