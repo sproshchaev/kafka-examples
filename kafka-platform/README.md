@@ -23,7 +23,7 @@
 | 1   | [docker-compose.zk-min.yml](docker-compose.zk-min.yml)                      | `localhost:9093`                    | ZooKeeper           | ❌               | ❌             | `http://localhost:9000`            | ✅           |
 | 1.1 | [docker-compose.zk-min.kafka-ui.yml](docker-compose.zk-min.kafka-ui.yml)             | `localhost:9093`                    | ZooKeeper           | ❌               | ❌             | `http://localhost:9000`            | ✅           |
 | 2   | [docker-compose.zk-dev-full.yml](docker-compose.zk-dev-full.yml)                 | `localhost:9093`                    | ZooKeeper           | `:8081`/`:8001` | `:8082`        | `http://localhost:9000`            | ❌           |
-| 2.1 | [docker-compose.zk-dev-full.kafka-ui.yml](docker-compose.zk-dev-full.kafka-ui.yml)        | `localhost:9093`                    | ZooKeeper           | `:8081`         | `:8082`        | `http://localhost:8088`            | ❌           |
+| 2.1 | [docker-compose.zk-dev-full.kafka-ui.yml](docker-compose.zk-dev-full.kafka-ui.yml)        | `localhost:9093`                    | ZooKeeper           | `:8081`/`:8001` | `:8082`        | `http://localhost:8088`            | ❌           |
 | 3   | [docker-compose.kraft-1node.yml](docker-compose.kraft-1node.yml)                 | `localhost:9093`                    | KRaft               | ❌               | ❌             | `http://localhost:9000`            | ❌           |
 | 3.1 | [docker-compose.kraft-1node.kafka-ui.yml](docker-compose.kraft-1node.kafka-ui.yml)        | `localhost:9093`                    | KRaft               | ❌               | ❌             | `http://localhost:8088`            | ❌           |
 | 4   | [docker-compose.kraft-1c1b-full.yml](docker-compose.kraft-1c1b-full.yml)             | `localhost:9093`                    | KRaft               | `:8081`         | `:8082`        | `http://localhost:8088`            | ❌           |
@@ -67,6 +67,7 @@ _(ex. docker-compose2.yml)_
 ### Файл №2.1 docker-compose.zk-dev-full.yml (Kafka for Developers)
 - ✅ Бутстрап: `localhost:9093` - протестирован webinar-01 "producer service/consumer service"
 - ✅ Регистр схем: `localhost:8081`(стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}
+- ✅ schema-registry-ui: проверен http://localhost:8001  
 - ✅ REST API: `localhost:8082`
 - ✅ kafka-ui - протестирован на http://localhost:8088/
 - ❌ volume не именованы!
