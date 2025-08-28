@@ -8,14 +8,14 @@
 `1.1` Один брокер с ZooKeeper, Kafka UI: [docker-compose.zk-min.kafka-ui.yml](docker-compose.zk-min.kafka-ui.yml)  
 
 `2.`  Один брокер с ZooKeeper, Schema Registry (+ui), Kafka REST, Kafdrop: [docker-compose.zk-dev-full.yml](docker-compose.zk-dev-full.yml)  
-`2.1` Один брокер с ZooKeeper, Schema Registry, Kafka REST, Kafka UI: [docker-compose.zk-dev-full.kafka-ui.yml](docker-compose.zk-dev-full.kafka-ui.yml)
+`2.1` Один брокер с ZooKeeper, Schema Registry (+ui), Kafka REST, Kafka UI: [docker-compose.zk-dev-full.kafka-ui.yml](docker-compose.zk-dev-full.kafka-ui.yml)
 
 ##### KRaft
 `3.`  Один брокер с контроллером KRaft, Kafdrop: [docker-compose.kraft-1node.yml](docker-compose.kraft-1node.yml)  
 `3.1` Один брокер с контроллером KRaft, Kafka UI: [docker-compose.kraft-1node.kafka-ui.yml](docker-compose.kraft-1node.kafka-ui.yml)  
 
-`4.`  Один брокер с контроллером KRaft, Schema Registry, Kafka REST, Kafka UI: [docker-compose.kraft-1c1b-full.yml](docker-compose.kraft-1c1b-full.yml)  
-`4.1` Один брокер с контроллером KRaft, Schema Registry, Kafka REST, Kafdrop: [docker-compose.kraft-1c1b-full.kafdrop.yml](docker-compose.kraft-1c1b-full.kafdrop.yml)   
+`4.`  Один брокер с контроллером KRaft, Schema Registry (+ui), Kafka REST, Kafka UI: [docker-compose.kraft-1c1b-full.yml](docker-compose.kraft-1c1b-full.yml)  
+`4.1` Один брокер с контроллером KRaft, Schema Registry (+ui), Kafka REST, Kafdrop: [docker-compose.kraft-1c1b-full.kafdrop.yml](docker-compose.kraft-1c1b-full.kafdrop.yml)   
 
 
 | №   | Имя файла                                                                                        | bootstrap.servers                   | ZooKeeper<br/>KRaft | Schema Registry | Kafka REST API | Kafdrop(:9000)<br/>Kafka UI(:8088) | Volume names |
@@ -29,7 +29,7 @@
 | 4   | [docker-compose.kraft-1c1b-full.yml](docker-compose.kraft-1c1b-full.yml)             | `localhost:9093`                    | KRaft               | `:8081`/`:8001` | `:8082`        | `http://localhost:8088`            | ❌           |
 | 4.1 | [docker-compose.kraft-1c1b-full.kafdrop.yml](docker-compose.kraft-1c1b-full.kafdrop.yml)     | `localhost:9093`                    | KRaft               | `:8081`/`:8001` | `:8082`        | `http://localhost:9000`            | ❌           |
 | 5   | [docker-compose.kraft-3c3b-min.yml](docker-compose.kraft-3c3b-min.yml)              | `localhost:9091,:9092,:9093`        | KRaft               | ❌              | ❌             | `http://localhost:9000`            | ❌           |
-| 6   | [docker-compose.kraft-3c3b-sr.yml](docker-compose.kraft-3c3b-sr.yml)               | `localhost:9091,:9092,:9093`        | KRaft               | `:8081`         | ❌             | `http://localhost:9000`            | ❌           |
+| 6   | [docker-compose.kraft-3c3b-sr.yml](docker-compose.kraft-3c3b-sr.yml)               | `localhost:9091,:9092,:9093`        | KRaft               | `:8081`/`:8001` | ❌             | `http://localhost:9000`            | ❌           |
 | 7   | [docker-compose.kraft-3c3b-sr-ui.yml](docker-compose.kraft-3c3b-sr-ui.yml)            | `localhost:9091,:9092,:9093`        | KRaft               | `:8081`         | ❌             | `http://localhost:8088`            | ❌           |
 | 8   | [docker-compose.kraft-3c3b-complete.yml](docker-compose.kraft-3c3b-complete.yml)         | `localhost:9091,:9092,:9093`        | KRaft               | `:8081`         | `:8082`        | `http://localhost:8088`            | ❌           |
 | 9   | [docker-compose.kraft-3c3b-broken-bootstrap.yml](docker-compose.kraft-3c3b-broken-bootstrap.yml) | `localhost:29092` (**отличается!**) | KRaft               | `:8081`         | `:8082`        | `http://localhost:8088`            | ❌           |
@@ -115,6 +115,7 @@ _(ex. docker-compose-kraft3.yml)_
 ### Файл №6 docker-compose.kraft-3c3b-sr.yml (KRaft - 3 controller + 3 broker + Schema Registry)  
 - ✅ Бутстрап: `localhost:9091, localhost:9092, localhost:9093` - протестирован webinar-02 "producer service/consumer service"  
 - ✅ Регистр схем: `localhost:8081` (стандартный порт), проверен http://localhost:8081/config -> {"compatibilityLevel":"BACKWARD"}  
+- ✅ schema-registry-ui: проверен http://localhost:8001  
 - ✅ kafdrop - протестирован на http://localhost:9000/  
 - ❌ REST API: отсутствует  
 - ❌ volume не именованы!  
